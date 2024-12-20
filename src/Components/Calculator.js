@@ -1,32 +1,55 @@
 import React, { useState } from "react";
 
 const Calculator = () => {
-  const [data, setData] = useState("");
+  const [data, setData] = useState(""); // For input and operations
+  const [result, setResult] = useState(""); // For calculation result
 
   const getValue = (event) => {
-    console.log(event.target.value);
-    setData(data.concat(event.target.value));
+    setData((prev) => prev + event.target.value);
   };
 
   const calculation = () => {
-    setData(eval(data).toString());
-  };
+    try {
+      if (data === "") {
+        setResult("Error");
+        return;
+      }
 
-  const back = () => {
-    setData(data.slice(0, -1));
+      // Handle special cases
+      if (data.includes("/0") && !data.includes("/0.")) {
+        setResult(data === "0/0" ? "NaN" : "Infinity");
+        return;
+      }
+
+      // Evaluate the expression safely
+      const evalResult = eval(data); // eval is used cautiously here
+      setResult(evalResult.toString());
+    } catch (error) {
+      setResult("Error");
+    }
   };
 
   const clear = () => {
     setData("");
+    setResult("");
   };
+
+  const back = () => {
+    setData((prev) => prev.slice(0, -1));
+  };
+
   return (
     <>
       <div className="container">
         <div>
-          <input placeholder="0" value={data} />
+          <input type="text" placeholder="0" value={data} readOnly />
+        </div>
+        <div>
+          <div>{result && <div>{result}</div>}</div>
         </div>
         <br />
 
+        {/* Buttons */}
         <button onClick={getValue} value="(">
           (
         </button>
@@ -36,7 +59,7 @@ const Calculator = () => {
         <button onClick={getValue} value="%">
           %
         </button>
-        <button onClick={clear}>AC</button>
+        <button onClick={clear}>C</button>
 
         <button onClick={getValue} value="7">
           7
